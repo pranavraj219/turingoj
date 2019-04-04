@@ -113,6 +113,9 @@ def evaluate(csubmission):
         retStatus, executionTime, verdict = runCpp(csubmission)
     print('Status - {}\nETime - {}\nVerdict - {}'.format(retStatus, executionTime, verdict))
     submission_main = get_object_or_404(MainSubmission, id=csubmission.sidno)
+    if retStatus == 0:
+        csubmission.user_handle.score += csubmission.problem_submitted.score
+    csubmission.user_handle.save()
     submission_main.verdict = verdict
     submission_main.execution_time = executionTime
     submission_main.save()
