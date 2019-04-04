@@ -30,8 +30,8 @@ def user_directory_path(instance, filename):
 
 class SubmissionCache(models.Model):
     created_date = models.DateTimeField(default=timezone.now)
-    user_handle = models.ForeignKey(UserProfile, related_name = 'user_c_submission', on_delete=models.DO_NOTHING)
-    problem_submitted = models.ForeignKey(Problem, related_name = 'problem_c_submission', on_delete=models.DO_NOTHING)
+    user_handle = models.ForeignKey(UserProfile, related_name = 'user_c_submission', on_delete=models.CASCADE)
+    problem_submitted = models.ForeignKey(Problem, related_name = 'problem_c_submission', on_delete=models.CASCADE)
     language = models.CharField(blank=True,default='c_cpp', max_length=100, choices=lang_choices)
     actual_language = models.CharField(blank=True, max_length=100)
     solution = PrivateFileField(upload_to = user_directory_path)
@@ -44,9 +44,9 @@ class SubmissionCache(models.Model):
 class MainSubmission(models.Model):
     created_date = models.DateTimeField(default=timezone.now)
     # cache_submission_rel = models.OneToOneField(SubmissionCache,on_delete=models.DO_NOTHING, related_name='cache_to_main', null=True)
-    user_handle = models.ForeignKey(UserProfile, related_name = 'user_m_submission', on_delete=models.DO_NOTHING)
-    problem_submitted = models.ForeignKey(Problem, related_name = 'problem_m_submission', on_delete=models.DO_NOTHING)
-    verdict = models.CharField(blank=True, default = '...',max_length=50)
+    user_handle = models.ForeignKey(UserProfile, related_name = 'user_m_submission', on_delete=models.CASCADE)
+    problem_submitted = models.ForeignKey(Problem, related_name = 'problem_m_submission', on_delete=models.CASCADE)
+    verdict = models.CharField(blank=True, default = '...',max_length=500)
     # execution_time = models.PositiveIntegerField(blank=True, null=True)
     execution_time = models.DecimalField(blank=True, null=True, default=0,max_digits=6, decimal_places=3)
     memory = models.PositiveIntegerField(blank=True, null=True)

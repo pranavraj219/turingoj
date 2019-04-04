@@ -4,6 +4,9 @@ from django.views.generic import (CreateView, ListView, DetailView, UpdateView)
 from problems.forms import ProblemUploadForm
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import (LoginRequiredMixin, PermissionRequiredMixin, UserPassesTestMixin,)
+import subprocess
+import os
+
 
 class ProblemView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     login_url = '/login/'
@@ -19,6 +22,9 @@ class ProblemView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
             new_problem.setter = request.user
             new_problem.save()
             print('New Problem Posted-\nProblem Name - {}\nSetter - {}'.format(form.cleaned_data['problem_name'], request.user))
+            # Extract test cases from zip file
+            testFileUnzip = subprocess.Popen(['unzip', '-o', new_problem.test_file.path, '-d', os.path.dirname(new_problem.test_file.path)])
+            testFileUnzip.wait();
             return redirect('homepage')
         return render(request, self.template_name, {'form':form})
 

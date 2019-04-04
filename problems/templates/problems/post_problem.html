@@ -5,6 +5,9 @@
 <form method="post" enctype="multipart/form-data"}>
   {% csrf_token %}
   {{form.as_p}}
+  <ul>
+    <li>Test File should be of zip format with input and output test files as input00.txt and output00.txt and so on inside the input and output folder, the name of the zip file should be test.zip</li>
+  </ul>
   <input class = "btn btn-primary" type="submit" value="Submit Problem">
 </form>
 

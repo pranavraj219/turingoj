@@ -13,5 +13,4 @@ class ProblemUploadForm(forms.ModelForm):
         self.fields['memory_limit'].label = 'Memory Limit'
         self.fields['src_code_size'].label = 'Source Code Size'
         self.fields['solution_file'].label = 'Solution File'
-        self.fields['test_file_input'].label = 'Input Test File'
-        self.fields['test_file_output'].label = 'Output Test File'
+        self.fields['test_file'].label = 'Input Test File Zip'

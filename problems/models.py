@@ -4,7 +4,6 @@ from django.utils.text import slugify
 from django.urls import reverse
 from private_storage.fields import PrivateFileField
 
-
 def user_directory_path(instance, filename):
     return 'problems/problem_{}/{}'.format(instance.slug, filename)
 
@@ -23,8 +22,7 @@ class Problem(models.Model):
     memory_limit = models.PositiveIntegerField(default = DEFAULT_MEM_LIMIT)
     src_code_size = models.PositiveIntegerField(default = DEFAULT_SRC_CODE_SZ)
     solution_file = PrivateFileField(upload_to = user_directory_path, max_file_size = DEFAULT_SRC_CODE_SZ)
-    test_file_input = PrivateFileField(upload_to = user_directory_path, max_file_size = DEFAULT_BASE_FILE_SIZE*10)
-    test_file_output = PrivateFileField(upload_to = user_directory_path, max_file_size = DEFAULT_BASE_FILE_SIZE*10)
+    test_file = PrivateFileField(upload_to = user_directory_path, max_file_size = DEFAULT_BASE_FILE_SIZE*30)
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.problem_name)
