@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% load static %}
+{% block body_block %}
+<table class="table">
+  <tr>
+    <th>Name: </th>
+    <td>{{userprofile.name}}</td>
+  </tr>
+  <tr>
+    <th>Handle: </th>
+    <td>{{userprofile.username}}</td>
+  </tr>
+  <tr>
+    <th>Registered: </th>
+    <td>{{userprofile.date_joined|date:"d M Y"}}</td>
+  </tr>
+
+
+</table>
+{% endblock body_block %}

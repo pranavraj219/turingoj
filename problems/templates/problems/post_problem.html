@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% load static %}
+{% block body_block %}
+<h2>Post Problem</h2>
+<form method="post" enctype="multipart/form-data"}>
+  {% csrf_token %}
+  {{form.as_p}}
+  <input class = "btn btn-primary" type="submit" value="Submit Problem">
+</form>
+
+{% endblock body_block %}

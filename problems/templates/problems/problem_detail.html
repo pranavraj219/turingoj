@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% load static %}
+{% block body_block %}
+<div class="container">
+  <h2>{{probleminfo.problem_name}}</h2>
+  <p>{{probleminfo.problem_statement|linebreaksbr}}</p>
+  <hr>
+  <br>
+  Time Limit: {{probleminfo.time_limit}}s <br>
+  Memory Limit: {{probleminfo.memory_limit}} MB <br>
+  Source Code Size Limit: {{probleminfo.src_code_size}} Bytes <br>
+  Problem Setter: {{probleminfo.setter}}
+  <br>
+  <br>
+  <a href="{% url 'submissions:submit_code' problemslug=probleminfo.slug %}" class="btn btn-primary">Submit Code</a>
+  <a href="{% url 'problems:problem_update' slug=probleminfo.slug %}" class="btn btn-primary">Update Problem</a>
+</div>
+
+{% endblock body_block %}
