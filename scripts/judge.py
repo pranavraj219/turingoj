@@ -18,18 +18,19 @@ DEFAULT_GID = 1000
 ROOT_UID = 0
 ROOT_GID = 0
 
-TIME_QUANTUM = 0.2      # Update for more granular control over Execution Time
+TIME_QUANTUM = 0.01      # Update for more granular control over Execution Time
 
 CHROOTPATH = '/var/jail/ubuntu'
 JUDGEDIR = CHROOTPATH + '/judgedir'
+JUDGE_SCRIPT_PATH = os.path.dirname(os.path.realpath(__file__))
 
 # global vars
-cpl_solution_path = os.path.dirname(os.path.realpath(__file__))+'/ven/curr_solution'
+cpl_solution_path = JUDGE_SCRIPT_PATH+'/ven/curr_solution'
 
 def backToHostRoot():
     os.fchdir(HOST_ROOT)
     os.chroot(".")
-
+    os.chdir(JUDGE_SCRIPT_PATH)
 
 def cleanFiles(problem_directory):
     print(problem_directory)
@@ -41,6 +42,7 @@ def cleanFiles(problem_directory):
 
 def runCpp(csubmission):
     retStatus = 0                                   # 0 for accepted, 1 WA, 2 NZEC, 3 TLE
+    mxTime = 0
     verdict = "Accepted"
     corr_problem = csubmission.problem_submitted
     problem_directory = os.path.dirname(corr_problem.test_file.path)
@@ -54,7 +56,8 @@ def runCpp(csubmission):
     os.chroot(CHROOTPATH)
     executablePath = '/judgedir/curr_solution'
     for i in range(0, total):
-        print("Running Test Case " + str(i))
+        testCaseNo = i + 1
+        print("Running Test Case " + str(testCaseNo))
         currID = ""
         if i <= 9:
             currID = '0' + str(i)
@@ -67,17 +70,18 @@ def runCpp(csubmission):
         while currTime < TL:
             time.sleep(TIME_QUANTUM)
             currTime += TIME_QUANTUM
+            mxTime = max(mxTime, currTime)
             if currProc.poll() is not None:
                 break
         if currProc.poll() is None:
             p.kill()
             retStatus = 3
-            verdict = "TLE on test case {}".format(str(i))
+            verdict = "TLE on test case {}".format(testCaseNo)
             return retStatus, currTime, verdict
 
         if currProc.returncode != 0 :
             retStatus = 2
-            verdict = "NZEC on test case {}".format(str(i))
+            verdict = "NZEC on test case {}".format(testCaseNo)
             return retStatus, currTime, verdict
 
         test_output = currProc.communicate()[0].decode('ascii')
@@ -85,13 +89,13 @@ def runCpp(csubmission):
         reqd_output = outputFile.read()
         if test_output != reqd_output:
             retStatus = 1
-            verdict = "WA on test case {}".format(str(i+1))
+            verdict = "WA on test case {}".format(testCaseNo)
             return retStatus, currTime, verdict
-        return retStatus, currTime, verdict
+    return retStatus, mxTime, verdict
 
 def evaluate(csubmission):
     src_file = open(csubmission.solution.path, 'r')
-    solution_path = os.path.dirname(os.path.realpath(__file__))+'/ven'
+    solution_path = JUDGE_SCRIPT_PATH+'/ven'
     new_src_file_path = solution_path + '/curr_solution.'+lang_extensions[csubmission.language]
     solution_file = open(new_src_file_path, 'w')
     solution_file.write(src_file.read())
@@ -113,20 +117,22 @@ def evaluate(csubmission):
         retStatus, executionTime, verdict = runCpp(csubmission)
     print('Status - {}\nETime - {}\nVerdict - {}'.format(retStatus, executionTime, verdict))
     submission_main = get_object_or_404(MainSubmission, id=csubmission.sidno)
-    if retStatus == 0:
-        csubmission.user_handle.score += csubmission.problem_submitted.score
+    # if retStatus == 0 and (MainSubmission.objects.filter(user_handle__exact=csubmission.user_handle, verdict__exact="Accepted") is not None):
+        # csubmission.user_handle.score += csubmission.problem_submitted.score
     csubmission.user_handle.save()
     submission_main.verdict = verdict
     submission_main.execution_time = executionTime
     submission_main.save()
     csubmission.judged = 'yes'
     csubmission.save()
+    backToHostRoot()
+
 while True:
     HOST_ROOT = os.open("/", os.O_RDONLY)
     if len(sys.argv) > 1:
         cache_submissions = SubmissionCache.objects.filter(sidno__range=(int(sys.argv[1]), int(sys.argv[2])))
     else:
-        cache_submissions = SubmissionCache.objects.filter(judged__iexact='no')
+        cache_submissions = SubmissionCache.objects.filter(judged__iexact='no').order_by('id')
     for csubmission in cache_submissions:
         print('Judging cache submission - {}\nMain - {}'.format(csubmission.id, csubmission.sidno))
         evaluate(csubmission)
