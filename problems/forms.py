@@ -14,3 +14,4 @@ class ProblemUploadForm(forms.ModelForm):
         self.fields['src_code_size'].label = 'Source Code Size'
         self.fields['solution_file'].label = 'Solution File'
         self.fields['test_file'].label = 'Input Test File Zip'
+        self.fields['score'].label = 'Score'

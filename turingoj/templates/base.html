@@ -15,6 +15,7 @@
         <li> <a href="{% url 'homepage' %}" class = "navbar-brand">TuringOJ</a> </li>
         <li> <a href="{% url 'problems:problem_list' %}" class = "navbar-brand">Problemset</a> </li>
         <li> <a href="{% url 'submissions:submission_home' %}" class = "navbar-brand">Submissions</a> </li>
+        <li> <a href="{% url 'leaderboard' %}" class = "navbar-brand">Leaderboard</a> </li>
         {% if user.is_authenticated %}
         <li> <a href="{% url 'logout' %}" class = "navbar-brand">Logout</a> </li>
         {% if perms.coders.can_set_problems %}

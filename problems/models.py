@@ -18,6 +18,7 @@ class Problem(models.Model):
     slug = models.SlugField(unique=True)
     problem_statement = models.TextField()
     setter = models.ForeignKey(UserProfile, default = DEFAULT_SETTER_ID, on_delete=models.SET_DEFAULT)
+    score = models.PositiveIntegerField(blank=True, null=True, default = 100)
     time_limit = models.PositiveIntegerField(default = DEFAULT_TIME_LIMIT)
     memory_limit = models.PositiveIntegerField(default = DEFAULT_MEM_LIMIT)
     src_code_size = models.PositiveIntegerField(default = DEFAULT_SRC_CODE_SZ)

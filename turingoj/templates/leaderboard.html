@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% load static %}
+{% block body_block %}
+<div class="container">
+  <h2>Leaderboard</h2>
+  <table class="table">
+    <thead>
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col">User</th>
+        <th scope="col">Score</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for coder in coders_list %}
+      <tr>
+        <th scope="row">{{coder.rank}}</th>
+        <th><a href="{% url 'coders:user_info' username=coder.user_handle.username %}">{{coder.user_handle.username}}</a></th>
+        <th>{{coder.user_handle.score}}</th>
+      </tr>
+      {% endfor %}
+
+    </tbody>
+  </table>
+
+</div>
+
+{% endblock body_block %}

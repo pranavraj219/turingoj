@@ -3,9 +3,8 @@ from django.contrib.auth.models import AbstractUser
 from datetime import date
 class UserProfile(AbstractUser):
     name = models.CharField(blank=True, max_length=200)
-    # USERNAME_FIELD = 'handle'
-    # handle = models.CharField(blank=True, max_length=200, unique=True)
-    # registeredDate = models.DateField(default=date.today)
+    score = models.PositiveIntegerField(blank=True, null=True, default = 0)
+
     def __str__(self):
         return self.username
 
