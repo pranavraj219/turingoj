@@ -4,6 +4,9 @@ from problems.models import Problem
 class ProblemUploadForm(forms.ModelForm):
     class Meta:
         model = Problem
+        widgets = {
+            'problem_statement':forms.Textarea(attrs={'class':'editable'})
+        }
         exclude = ('slug', 'setter',)
     def __init__(self, *args, **kwargs):
         super(ProblemUploadForm, self).__init__(*args, **kwargs)

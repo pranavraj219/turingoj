@@ -3,7 +3,7 @@
 {% block body_block %}
 <div class="container">
   <h2>{{probleminfo.problem_name}}</h2>
-  <p>{{probleminfo.problem_statement|linebreaksbr}}</p>
+  <p>{{probleminfo.problem_statement|safe|linebreaksbr}}</p>
   <hr>
   <br>
   Time Limit: {{probleminfo.time_limit}}s <br>

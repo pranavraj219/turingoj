@@ -2,6 +2,9 @@
 {% load static %}
 {% block body_block %}
 <h2>Post Problem</h2>
+<script src="{% static 'js/medium_editor/medium-editor.min.js'  %}"></script>
+<link rel="stylesheet" href="{% static 'css/medium_editor/medium-editor.css' %}">
+<link rel="stylesheet" href="{% static 'css/medium_editor/themes/default.min.css' %}">
 <form method="post" enctype="multipart/form-data"}>
   {% csrf_token %}
   {{form.as_p}}
@@ -10,5 +13,6 @@
   </ul>
   <input class = "btn btn-primary" type="submit" value="Submit Problem">
 </form>
+<script>var editor = new MediumEditor('.editable');</script>
 
 {% endblock body_block %}

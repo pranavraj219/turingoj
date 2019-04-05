@@ -66,7 +66,9 @@ def runCpp(csubmission):
         else:
             currID = str(i)
         curr_input_file = open('/judgedir/input/input'+currID+'.txt')
-        currProc = subprocess.Popen([executablePath], stdin=curr_input_file, stdout=subprocess.PIPE)
+        execFilePath = '/judgedir/expout.txt'
+        exec_output_file = open(execFilePath,'w')
+        currProc = subprocess.Popen([executablePath], stdin=curr_input_file, stdout=exec_output_file)
         currTime = 0
         TL = corr_problem.time_limit
         while currTime < TL:
@@ -75,8 +77,11 @@ def runCpp(csubmission):
             mxTime = max(mxTime, currTime)
             if currProc.poll() is not None:
                 break
+        exec_output_file.close()
+        curr_input_file.close()
         if currProc.poll() is None:
-            p.kill()
+            currProc.kill()
+            test_output = currProc.communicate()[0].decode('ascii')
             retStatus = 3
             verdict = "TLE on test case {}".format(testCaseNo)
             return retStatus, currTime, verdict
@@ -86,10 +91,13 @@ def runCpp(csubmission):
             verdict = "NZEC on test case {}".format(testCaseNo)
             return retStatus, currTime, verdict
 
-        test_output = currProc.communicate()[0].decode('ascii')
-        outputFile = open('/judgedir/output/output' + currID + '.txt')
-        reqd_output = outputFile.read()
-        if test_output != reqd_output:
+        outputFilePath = '/judgedir/output/output' + currID + '.txt'
+        diffFile = open('/judgedir/differences.txt','w')
+        currProc = subprocess.Popen(['diff', '-Z', outputFilePath, execFilePath], stdout = diffFile)
+        currProc.wait()
+        diffFile.close()
+        diffFile = open('/judgedir/differences.txt','r')
+        if len(diffFile.read()) != 0:
             retStatus = 1
             verdict = "WA on test case {}".format(testCaseNo)
             return retStatus, currTime, verdict
