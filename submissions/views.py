@@ -77,7 +77,7 @@ class ProblemSubmissionListView(ListView):
     def get_queryset(self):
         problem_slug = self.kwargs['slug']
         problem = Problem.objects.get(slug=problem_slug)
-        return problem.problem_m_submission.all()
+        return problem.problem_m_submission.all().order_by('-id')
 
 class MySubmissionListView(ListView):
     model = MainSubmission
@@ -87,4 +87,4 @@ class MySubmissionListView(ListView):
     def get_queryset(self):
         urlusername = self.kwargs['username']
         user = UserProfile.objects.get(username=urlusername)
-        return user.user_m_submission.all()
+        return user.user_m_submission.all().order_by('-id')

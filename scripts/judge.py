@@ -124,8 +124,9 @@ def compileCpp(csubmission):
 def updateScore(csubmission):
     global SCORE_UPDATED
     SCORE_UPDATED = False
-    if (MainSubmission.objects.filter(user_handle=csubmission.user_handle, verdict="Accepted").count() == 0):
+    if (MainSubmission.objects.filter(user_handle=csubmission.user_handle, problem_submitted = csubmission.problem_submitted, verdict="Accepted").count() == 0):
         csubmission.user_handle.score += csubmission.problem_submitted.score
+        print('Score Updated:\nUser: {}\nScore: {}'.format(csubmission.user_handle, csubmission.user_handle.score))
         SCORE_UPDATED = True
 
 def updateLeaderBoard():
@@ -180,6 +181,8 @@ while True:
     os.close(HOST_ROOT)
     if SCORE_UPDATED:
         updateLeaderBoard()
+        SCORE_UPDATED = False
+
     if len(sys.argv) > 2:
         sys.exit(0)
     time.sleep(2.0)
