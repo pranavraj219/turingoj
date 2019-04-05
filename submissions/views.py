@@ -7,10 +7,11 @@ from django.core.files.base import ContentFile
 from problems.models import Problem
 from django.urls import reverse_lazy
 from private_storage.views import PrivateStorageDetailView
-
+from coders.models import UserProfile
 
 # BASE_CACHE_SUBMISSION_PATH = 'submissions/cache/'
 # BASE_MAIN_SUBMISSION_PATH = 'submissions/main/'
+SOLUTIONS_VISIBLE = False       # Set true to make all solutions visible
 
 class SubmissionCacheView(LoginRequiredMixin, CreateView):
     login_url = '/login/'
@@ -67,3 +68,23 @@ class SubmissionDetailView(DetailView):
         src_code = solution_file.read()
         solution_file.close()
         return render(request, self.template_name, {'submission':submissionObj, 'src_code':src_code})
+
+class ProblemSubmissionListView(ListView):
+    model = MainSubmission
+    template_name = 'submissions/submission_list.html'
+    context_object_name = 'submissions_list'
+    paginate_by = 10
+    def get_queryset(self):
+        problem_slug = self.kwargs['slug']
+        problem = Problem.objects.get(slug=problem_slug)
+        return problem.problem_m_submission.all()
+
+class MySubmissionListView(ListView):
+    model = MainSubmission
+    template_name = 'submissions/submission_list.html'
+    context_object_name = 'submissions_list'
+    paginate_by = 10
+    def get_queryset(self):
+        urlusername = self.kwargs['username']
+        user = UserProfile.objects.get(username=urlusername)
+        return user.user_m_submission.all()

@@ -126,10 +126,14 @@ def updateLeaderBoard():
     Leaderboard.objects.all().delete()
     currRank = 1
     prevScore = allUsers[0].score
+    sameRank = 0
     for user in allUsers:
         if(prevScore != user.score):
-            currRank += 1
+            currRank += sameRank
             prevScore = user.score
+            sameRank = 1
+        else:
+            sameRank += 1
         new_entry = Leaderboard.objects.create(user_handle=user, rank=currRank)
         new_entry.save()
 def evaluate(csubmission):

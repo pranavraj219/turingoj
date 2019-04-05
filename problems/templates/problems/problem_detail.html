@@ -13,7 +13,11 @@
   <br>
   <br>
   <a href="{% url 'submissions:submit_code' problemslug=probleminfo.slug %}" class="btn btn-primary">Submit Code</a>
-  <a href="{% url 'problems:problem_update' slug=probleminfo.slug %}" class="btn btn-primary">Update Problem</a>
+  <a href="{% url 'problems:problem_submissions' slug=probleminfo.slug %}" class="btn btn-primary">Submissions</a>
+  {% if user.get_username == probleminfo.setter.username %}
+    <a href="{% url 'problems:problem_update' slug=probleminfo.slug %}" class="btn btn-primary">Update Problem</a>
+    {% endif %}
+
 </div>
 
 {% endblock body_block %}

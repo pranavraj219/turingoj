@@ -19,7 +19,11 @@
     <tbody>
       {% for submission in submissions_list %}
       <tr>
-        <th scope="row"> <a href="{% url 'submissions:submission_detail' submission_id=submission.id %}">{{submission.id}}</a> </th>
+        {% if user.get_username == submission.user_handle.username %}
+          <th scope="row"> <a href="{% url 'submissions:submission_detail' submission_id=submission.id %}">{{submission.id}}</a> </th>
+        {% else %}
+          <th scope="row">{{submission.id}}</th>
+        {% endif %}
         <th>{{submission.created_date}}</th>
         <th><a href="{% url 'problems:problem_page' slug=submission.problem_submitted.slug %}">{{submission.problem_submitted.slug}}</a></th>
         <th> <a href="{% url 'coders:user_info' username=submission.user_handle.username %}">{{submission.user_handle.username}}</a> </th>
