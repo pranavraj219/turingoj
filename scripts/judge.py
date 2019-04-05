@@ -10,8 +10,9 @@ import django
 django.setup()
 
 from django.shortcuts import get_object_or_404
-from submissions.models import SubmissionCache, MainSubmission, lang_extensions
+from submissions.models import SubmissionCache, MainSubmission, Leaderboard, lang_extensions
 from problems.models import Problem
+from coders.models import UserProfile
 
 DEFAULT_UID = 1000      # Set these both according to needs
 DEFAULT_GID = 1000
@@ -27,13 +28,14 @@ JUDGE_SCRIPT_PATH = os.path.dirname(os.path.realpath(__file__))
 # global vars
 cpl_solution_path = JUDGE_SCRIPT_PATH+'/ven/curr_solution'
 
+SCORE_UPDATED = False                   # To void Leaderboard updation
+
 def backToHostRoot():
     os.fchdir(HOST_ROOT)
     os.chroot(".")
     os.chdir(JUDGE_SCRIPT_PATH)
 
 def cleanFiles(problem_directory):
-    print(problem_directory)
     subprocess.call(['rm','-rf', JUDGEDIR + '/*'])           # BE VERY CAUTIOUS!! REMOVING TEMPORARY FILES
     subprocess.call(['cp', '-r', problem_directory + '/input', JUDGEDIR + '/'])
     subprocess.call(['cp', '-r', problem_directory + '/output', JUDGEDIR + '/'])
@@ -93,7 +95,7 @@ def runCpp(csubmission):
             return retStatus, currTime, verdict
     return retStatus, mxTime, verdict
 
-def evaluate(csubmission):
+def compileCpp(csubmission):
     src_file = open(csubmission.solution.path, 'r')
     solution_path = JUDGE_SCRIPT_PATH+'/ven'
     new_src_file_path = solution_path + '/curr_solution.'+lang_extensions[csubmission.language]
@@ -107,18 +109,42 @@ def evaluate(csubmission):
     stdout, stderr = cpl_src.communicate()
     stdout = stdout.decode('utf-8')
     stderr = stderr.decode('utf-8')
+    if stderr != "":
+        return False
+    return True
+
+def updateScore(csubmission):
+    global SCORE_UPDATED
+    SCORE_UPDATED = False
+    if (MainSubmission.objects.filter(user_handle=csubmission.user_handle, verdict="Accepted").count() == 0):
+        csubmission.user_handle.score += csubmission.problem_submitted.score
+        SCORE_UPDATED = True
+
+def updateLeaderBoard():
+    print('Updating Leaderboard')
+    allUsers = UserProfile.objects.all().order_by('-score')
+    Leaderboard.objects.all().delete()
+    currRank = 1
+    prevScore = allUsers[0].score
+    for user in allUsers:
+        if(prevScore != user.score):
+            currRank += 1
+            prevScore = user.score
+        new_entry = Leaderboard.objects.create(user_handle=user, rank=currRank)
+        new_entry.save()
+def evaluate(csubmission):
     verdict = ""
     executionTime = 0
     memory = 0
     retStatus = 0
-    if stderr != "":
+    if compileCpp(csubmission) == False:
          verdict = "Compilation Error"
     else :
         retStatus, executionTime, verdict = runCpp(csubmission)
     print('Status - {}\nETime - {}\nVerdict - {}'.format(retStatus, executionTime, verdict))
     submission_main = get_object_or_404(MainSubmission, id=csubmission.sidno)
-    # if retStatus == 0 and (MainSubmission.objects.filter(user_handle__exact=csubmission.user_handle, verdict__exact="Accepted") is not None):
-        # csubmission.user_handle.score += csubmission.problem_submitted.score
+    if retStatus == 0:
+        updateScore(csubmission)
     csubmission.user_handle.save()
     submission_main.verdict = verdict
     submission_main.execution_time = executionTime
@@ -129,14 +155,19 @@ def evaluate(csubmission):
 
 while True:
     HOST_ROOT = os.open("/", os.O_RDONLY)
-    if len(sys.argv) > 1:
+    if 'leaderboard' in sys.argv:
+        updateLeaderBoard()
+        sys.exit(0)
+    if len(sys.argv) > 2:
         cache_submissions = SubmissionCache.objects.filter(sidno__range=(int(sys.argv[1]), int(sys.argv[2])))
     else:
         cache_submissions = SubmissionCache.objects.filter(judged__iexact='no').order_by('id')
     for csubmission in cache_submissions:
-        print('Judging cache submission - {}\nMain - {}'.format(csubmission.id, csubmission.sidno))
+        print('Judging cache submission - {}\nMain - {}\nProblem - {}'.format(csubmission.id, csubmission.sidno, csubmission.problem_submitted.slug))
         evaluate(csubmission)
     os.close(HOST_ROOT)
-    if len(sys.argv) > 1:
+    if SCORE_UPDATED:
+        updateLeaderBoard()
+    if len(sys.argv) > 2:
         sys.exit(0)
     time.sleep(2.0)
