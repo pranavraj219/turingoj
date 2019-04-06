@@ -1,4 +1,5 @@
-import os, sys
+import os
+import sys
 import subprocess
 import shlex
 import time
@@ -26,21 +27,24 @@ JUDGEDIR = CHROOTPATH + '/judgedir'
 JUDGE_SCRIPT_PATH = os.path.dirname(os.path.realpath(__file__))
 
 # global vars
-cpl_solution_path = JUDGE_SCRIPT_PATH+'/ven/curr_solution'
+cpl_solution_path = JUDGE_SCRIPT_PATH + '/ven/curr_solution'
 
 SCORE_UPDATED = False                   # To void Leaderboard updation
+
 
 def backToHostRoot():
     os.fchdir(HOST_ROOT)
     os.chroot(".")
     os.chdir(JUDGE_SCRIPT_PATH)
 
+
 def cleanFiles(problem_directory):
-    subprocess.call(['rm','-rf', JUDGEDIR + '/*'])           # BE VERY CAUTIOUS!! REMOVING TEMPORARY FILES
+    subprocess.call(['rm', '-rf', JUDGEDIR + '/*'])           # BE VERY CAUTIOUS!! REMOVING TEMPORARY FILES
     subprocess.call(['cp', '-r', problem_directory + '/input', JUDGEDIR + '/'])
     subprocess.call(['cp', '-r', problem_directory + '/output', JUDGEDIR + '/'])
     subprocess.call(['cp', cpl_solution_path, JUDGEDIR + '/'])
     subprocess.call(['rm', cpl_solution_path])
+
 
 def runCpp(csubmission):
     retStatus = 0                                   # 0 for accepted, 1 WA, 2 NZEC, 3 TLE
@@ -48,12 +52,12 @@ def runCpp(csubmission):
     verdict = "Accepted"
     corr_problem = csubmission.problem_submitted
     problem_directory = os.path.dirname(corr_problem.test_file.path)
-    tot_files = subprocess.Popen(['ls','-1',problem_directory+'/input'],stdout=subprocess.PIPE, stderr=subprocess.PIPE)             #Find total number of test cases
+    tot_files = subprocess.Popen(['ls', '-1', problem_directory + '/input'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)  # Find total number of test cases
     tot_files.wait()
     stdout = tot_files.communicate()[0]
     total = stdout.decode('utf-8').count('\n')
     os.setgid(ROOT_GID)
-    os.setuid(ROOT_UID)    #root
+    os.setuid(ROOT_UID)  # root
     cleanFiles(problem_directory)
     os.chroot(CHROOTPATH)
     executablePath = '/judgedir/curr_solution'
@@ -65,9 +69,9 @@ def runCpp(csubmission):
             currID = '0' + str(i)
         else:
             currID = str(i)
-        curr_input_file = open('/judgedir/input/input'+currID+'.txt')
+        curr_input_file = open('/judgedir/input/input' + currID + '.txt')
         execFilePath = '/judgedir/expout.txt'
-        exec_output_file = open(execFilePath,'w')
+        exec_output_file = open(execFilePath, 'w')
         currProc = subprocess.Popen([executablePath], stdin=curr_input_file, stdout=exec_output_file)
         currTime = 0
         TL = corr_problem.time_limit
@@ -81,38 +85,38 @@ def runCpp(csubmission):
         curr_input_file.close()
         if currProc.poll() is None:
             currProc.kill()
-            test_output = currProc.communicate()[0].decode('ascii')
             retStatus = 3
             verdict = "TLE on test case {}".format(testCaseNo)
             return retStatus, currTime, verdict
 
-        if currProc.returncode != 0 :
+        if currProc.returncode != 0:
             retStatus = 2
             verdict = "NZEC on test case {}".format(testCaseNo)
             return retStatus, currTime, verdict
 
         outputFilePath = '/judgedir/output/output' + currID + '.txt'
-        diffFile = open('/judgedir/differences.txt','w')
-        currProc = subprocess.Popen(['diff', '-Z', outputFilePath, execFilePath], stdout = diffFile)
+        diffFile = open('/judgedir/differences.txt', 'w')
+        currProc = subprocess.Popen(['diff', '-Z', outputFilePath, execFilePath], stdout=diffFile)
         currProc.wait()
         diffFile.close()
-        diffFile = open('/judgedir/differences.txt','r')
+        diffFile = open('/judgedir/differences.txt', 'r')
         if len(diffFile.read()) != 0:
             retStatus = 1
             verdict = "WA on test case {}".format(testCaseNo)
             return retStatus, currTime, verdict
     return retStatus, mxTime, verdict
 
+
 def compileCpp(csubmission):
     src_file = open(csubmission.solution.path, 'r')
-    solution_path = JUDGE_SCRIPT_PATH+'/ven'
-    new_src_file_path = solution_path + '/curr_solution.'+lang_extensions[csubmission.language]
+    solution_path = JUDGE_SCRIPT_PATH + '/ven'
+    new_src_file_path = solution_path + '/curr_solution.' + lang_extensions[csubmission.language]
     solution_file = open(new_src_file_path, 'w')
     solution_file.write(src_file.read())
     src_file.close()
     solution_file.close()
     cpl_src = subprocess.Popen(['g++', '-w', '-std=c++14', new_src_file_path,
-    '-o', solution_path + '/curr_solution'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                                '-o', solution_path + '/curr_solution'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     cpl_src.wait()
     stdout, stderr = cpl_src.communicate()
     stdout = stdout.decode('utf-8')
@@ -121,13 +125,15 @@ def compileCpp(csubmission):
         return False
     return True
 
+
 def updateScore(csubmission):
     global SCORE_UPDATED
     SCORE_UPDATED = False
-    if (MainSubmission.objects.filter(user_handle=csubmission.user_handle, problem_submitted = csubmission.problem_submitted, verdict="Accepted").count() == 0):
+    if (MainSubmission.objects.filter(user_handle=csubmission.user_handle, problem_submitted=csubmission.problem_submitted, verdict="Accepted").count() == 0):
         csubmission.user_handle.score += csubmission.problem_submitted.score
         print('Score Updated:\nUser: {}\nScore: {}'.format(csubmission.user_handle, csubmission.user_handle.score))
         SCORE_UPDATED = True
+
 
 def updateLeaderBoard():
     print('Updating Leaderboard')
@@ -145,14 +151,16 @@ def updateLeaderBoard():
             sameRank += 1
         new_entry = Leaderboard.objects.create(user_handle=user, rank=currRank)
         new_entry.save()
+
+
 def evaluate(csubmission):
     verdict = ""
     executionTime = 0
     memory = 0
-    retStatus = 0
+    retStatus = 4
     if compileCpp(csubmission) == False:
-         verdict = "Compilation Error"
-    else :
+        verdict = "Compilation Error"
+    else:
         retStatus, executionTime, verdict = runCpp(csubmission)
     print('Status - {}\nETime - {}\nVerdict - {}'.format(retStatus, executionTime, verdict))
     submission_main = get_object_or_404(MainSubmission, id=csubmission.sidno)
@@ -166,6 +174,8 @@ def evaluate(csubmission):
     csubmission.save()
     backToHostRoot()
 
+
+print('Judge Running...')
 while True:
     HOST_ROOT = os.open("/", os.O_RDONLY)
     if 'leaderboard' in sys.argv:
