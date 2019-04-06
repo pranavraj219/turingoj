@@ -64,10 +64,14 @@ class SubmissionDetailView(DetailView):
     # Include a can_access_function for restricting view to only the submitters
     def get(self, request, *args, **kwargs):
         submissionObj = get_object_or_404(MainSubmission, id=self.kwargs['submission_id'])
-        solution_file = open(submissionObj.solution.path, 'r')
-        src_code = solution_file.read()
-        solution_file.close()
-        return render(request, self.template_name, {'submission':submissionObj, 'src_code':src_code})
+        if request.user == submissionObj.user_handle:
+            solution_file = open(submissionObj.solution.path, 'r')
+            src_code = solution_file.read()
+            solution_file.close()
+            return render(request, self.template_name, {'submission':submissionObj, 'src_code':src_code})
+        else:
+            return render(request, 'forbidden.html');
+
 
 class ProblemSubmissionListView(ListView):
     model = MainSubmission

@@ -5,19 +5,19 @@ from private_storage.fields import PrivateFileField
 from django.utils import timezone
 
 lang_choices = (
-('text', 'Plain Text'),
+# ('text', 'Plain Text'),
 ('c_cpp', 'C++'),
-('java', 'Java'),
+# ('java', 'Java'),
 )
 lang_extensions = {
-'text' : 'txt',
+# 'text' : 'txt',
 'c_cpp' : 'cpp',
-'java' : 'java',
+# 'java' : 'java',
 }
 lang_dictionary = {
-'text' : 'Plain Text',
+# 'text' : 'Plain Text',
 'c_cpp' : 'C++',
-'java' : 'Java',
+# 'java' : 'Java',
 }
 
 def user_directory_path(instance, filename):
