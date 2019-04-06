@@ -9,6 +9,7 @@ from django.urls import reverse_lazy
 from private_storage.views import PrivateStorageDetailView
 from coders.models import UserProfile
 
+
 # BASE_CACHE_SUBMISSION_PATH = 'submissions/cache/'
 # BASE_MAIN_SUBMISSION_PATH = 'submissions/main/'
 SOLUTIONS_VISIBLE = False       # Set true to make all solutions visible
@@ -64,7 +65,7 @@ class SubmissionDetailView(DetailView):
     # Include a can_access_function for restricting view to only the submitters
     def get(self, request, *args, **kwargs):
         submissionObj = get_object_or_404(MainSubmission, id=self.kwargs['submission_id'])
-        if request.user == submissionObj.user_handle:
+        if (request.user == submissionObj.user_handle) or (request.user in UserProfile.objects.filter(is_staff=True)) :
             solution_file = open(submissionObj.solution.path, 'r')
             src_code = solution_file.read()
             solution_file.close()

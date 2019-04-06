@@ -28,5 +28,7 @@ urlpatterns = [
     path('problems/',include('problems.urls', namespace='problems')),
     path('submissions/',include('submissions.urls', namespace='submissions')),
     path('leaderboard/', views.LeaderboardListView.as_view(), name='leaderboard'),
+    path('faqs/', views.FAQListView.as_view(), name='faqs'),
+    path('faqs/post/', views.FAQCreateView.as_view(), name='post_faq'),
     path('private-media/', include(private_storage.urls)),
 ]

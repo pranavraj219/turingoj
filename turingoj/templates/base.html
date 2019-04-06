@@ -16,15 +16,15 @@
         <li> <a href="{% url 'problems:problem_list' %}" class = "navbar-brand">Problemset</a> </li>
         <li> <a href="{% url 'submissions:submission_home' %}" class = "navbar-brand">Submissions</a> </li>
         <li> <a href="{% url 'leaderboard' %}" class = "navbar-brand">Leaderboard</a> </li>
+        <li> <a href="{% url 'faqs' %}" class = "navbar-brand">FAQs</a> </li>
         {% if user.is_authenticated %}
-        <li> <a href="{% url 'logout' %}" class = "navbar-brand">Logout</a> </li>
         {% if perms.coders.can_set_problems %}
         <li> <a href="{% url 'problems:new_problem' %}" class = "navbar-brand">New Problem</a> </li>
         {% endif %}
+        <li> <a href="{% url 'logout' %}" class = "navbar-brand">Logout</a> </li>
         {% else %}
         <li> <a href="{% url 'login' %}" class = "navbar-brand">Login</a> </li>
         <li> <a href="{% url 'coders:sign_up' %}" class = "navbar-brand">Signup</a> </li>
-
         {% endif %}
         </ul>
       </nav>
@@ -35,7 +35,7 @@
       {% endblock body_block %}
   </div>
   <div class="card-footer text-muted text-center ">
-    -- Threaded piece by piece with love (like chicken) by Pranav Raj (WDragon) (0_0)
+    -- Threaded piece by piece with love by WDragon
   </div>
   </body>
 </html>
