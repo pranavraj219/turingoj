@@ -1,6 +1,6 @@
 # TuringOJ
 ### An Online Judge written in Django and Python
-<br>
+
 **Project Setup (for development)**
 * Copy the whole project to a directory.
 * Open `/turingoj/settings.py` and update the database variables.
@@ -18,4 +18,5 @@
 * To judge a range of submissions type `sudo python3 judge.py A B` , where A and B are the start and end submission IDs of the solutions.
 * Also run `scripts/updateLeaderBoard.sh` for the leaderboard to be updated regularly, to avoid inconsistency for the users who haven't submitted any solution.
 
-**Created by: Pranav Raj (WDragon) **
+
+**Created by: Pranav Raj (WDragon)**
