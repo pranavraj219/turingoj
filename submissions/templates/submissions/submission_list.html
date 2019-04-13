@@ -18,7 +18,7 @@
     <tbody>
       {% for submission in submissions_list %}
       <tr>
-        {% if user.get_username == submission.user_handle.username or request.user.is_staff %}
+        {% if user.get_username == submission.user_handle.username or request.user.is_staff or all_solutions_visible is True %}
           <th scope="row"> <a href="{% url 'submissions:submission_detail' submission_id=submission.id %}">{{submission.id}}</a> </th>
         {% else %}
           <th scope="row">{{submission.id}}</th>

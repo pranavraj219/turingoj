@@ -12,7 +12,7 @@ from coders.models import UserProfile
 
 # BASE_CACHE_SUBMISSION_PATH = 'submissions/cache/'
 # BASE_MAIN_SUBMISSION_PATH = 'submissions/main/'
-SOLUTIONS_VISIBLE = False       # Set true to make all solutions visible
+SOLUTIONS_VISIBLE = False       # Set true to make solutions visible to all the user
 
 class SubmissionCacheView(LoginRequiredMixin, CreateView):
     login_url = '/login/'
@@ -56,6 +56,10 @@ class SubmissionListView(ListView):
     queryset = MainSubmission.objects.all().order_by('-id')
     context_object_name = 'submissions_list'
     paginate_by = 10
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['all_solutions_visible'] = SOLUTIONS_VISIBLE
+        return context
 
 class SubmissionDetailView(DetailView):
     model = MainSubmission
@@ -65,13 +69,13 @@ class SubmissionDetailView(DetailView):
     # Include a can_access_function for restricting view to only the submitters
     def get(self, request, *args, **kwargs):
         submissionObj = get_object_or_404(MainSubmission, id=self.kwargs['submission_id'])
-        if (request.user == submissionObj.user_handle) or (request.user in UserProfile.objects.filter(is_staff=True)) :
+        if (request.user == submissionObj.user_handle) or (request.user in UserProfile.objects.filter(is_staff=True) or SOLUTIONS_VISIBLE) :
             solution_file = open(submissionObj.solution.path, 'r')
             src_code = solution_file.read()
             solution_file.close()
             return render(request, self.template_name, {'submission':submissionObj, 'src_code':src_code})
         else:
-            return render(request, 'forbidden.html');
+            return render(request, 'forbidden.html')
 
 
 class ProblemSubmissionListView(ListView):
