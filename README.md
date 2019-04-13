@@ -9,6 +9,7 @@
 * Setup the `ALLOWED_HOSTS` variable.
 * Setup the virtual environment according to the requirements.txt.
 * Set `DEBUG=True` for development purposes.
+* Make migrations for the models to be migrated to the database.
 
 **Judge Setup** `(scripts/judge.py)`
 * Create a jail for secure execution of the judge and ensure that the compilers to be used are installed and available.
