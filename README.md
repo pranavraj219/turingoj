@@ -17,3 +17,5 @@
 * Run `scripts/judge.py` as `sudo python3 judge.py` to start judging submissions.
 * To judge a range of submissions type `sudo python3 judge.py A B` , where A and B are the start and end submission IDs of the solutions.
 * Also run `scripts/updateLeaderBoard.sh` for the leaderboard to be updated regularly, to avoid inconsistency for the users who haven't submitted any solution.
+
+**Created by: Pranav Raj (WDragon) **
